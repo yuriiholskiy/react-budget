@@ -1,7 +1,9 @@
 import React from 'react';
 
-import BudgetContext, { IBudget } from '../providers/budget.provider';
+import BudgetContext from '../providers/budget.provider';
 
+
+import { IBudget } from '../utils/interfaces';
 import { setToStorage } from '../utils/local-storage';
 
 type Props = {
@@ -10,26 +12,26 @@ type Props = {
 
 const HomePage: React.FC<Props> = ({ history }) => {
 	const { budget, setBudget } = React.useContext<IBudget>(BudgetContext);
-
 	const handleClick = () => {
 		setToStorage('budget', budget);
 		history.push('/budget');
 	};
+	
   return (
   	<>
 	    <h2>Hello there. This is budget app, creating by React + typescript.</h2>
-  		<div className="input-field col s12">
+  		<div className="input-field">
 	      <input id="budget" 
 	      			 type="number" 
 	      			 className="validate" 
 	      			 placeholder="Type your budget"
-	      			 min="0" 
+	      			 min="0"
 	      			 value={budget}
 	      			 onChange={(e) => setBudget(+e.target.value)} />
 	    </div>  
 
 	    <button className="btn app-budget-btn" 
-	    				disabled={budget <= 0}
+	    				disabled={budget === 0}
 	    				onClick={handleClick}>
 	    				Set budget and go
 	    </button>
