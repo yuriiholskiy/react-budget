@@ -15,19 +15,12 @@ import NavbarComponent from './components/navbar.component';
 import BudgetContext from './providers/budget.provider';
 
 // utils
-import { IBudget, ICost } from './utils/interfaces';
+import { IBudget } from './utils/interfaces';
 import { getFromStorage } from './utils/local-storage';
-import defaultCosts from './utils/costs';
 
 // markup
 const App: React.FC = () => {
 	const [budget, setBudget] = React.useState<number>(+getFromStorage('budget')!);
-	const [costs, setCosts] = React.useState<Array<ICost>>(defaultCosts);
-
-	const handleDeleteCost = (id: string) => {
-		console.log(id);
-	}; 
-
 
 	const budgetContext: IBudget = {
 		budget,
@@ -38,13 +31,10 @@ const App: React.FC = () => {
 			<BrowserRouter>
 				<div className="app-budget">
 					<NavbarComponent />
-					<div className="container">
-							
+					<div className="container mt-1">
 						<Switch>
 							<Route exact path="/" component={HomePage} />
-							<Route path="/budget" render={(props) => <BudgetPage {...props} 
-																			 costs={costs} 
-																			 handleDeleteCost={handleDeleteCost} />
+							<Route path="/budget" component={BudgetPage}/>
 							} /> 
 							<Route path="/about" component={AboutPage} />
 						</Switch>

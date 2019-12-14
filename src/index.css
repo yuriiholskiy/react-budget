@@ -61,7 +61,25 @@ code {
 	padding-top: 1rem;
 	padding-bottom: 1rem;
 }
+.fz1 {
+	font-size: 1rem;
+}
+.fz2 {
+	font-size: 1.5rem;
+}
+.df {
+	display: flex;
+}
+.jcsb {
+	justify-content: space-between;
+}
+.aic {
+	align-items: center;
+}
 
+.cp {
+	cursor: pointer;
+}
 
 .app-budget {
 	background-color: var(--main-bg);
