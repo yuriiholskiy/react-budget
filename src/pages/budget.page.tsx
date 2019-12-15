@@ -8,20 +8,17 @@ import { IBudget, ICost } from '../utils/interfaces';
 import { uuid } from '../utils/uuid';
 import defaultCosts from '../utils/costs';
 
-type BudgetPageProps = {
-	costs: Array<ICost>;
-	handleDeleteCost(id: string): void;
-	handleChangeCost(id: string): void;
-	totalSpend: number;
-};
+import { costsReducer } from '../reducers/costs/reducer';
 
-const BudgetPage: React.FC<BudgetPageProps> = () => {
+
+const BudgetPage: React.FC = () => {
 	const { budget } = React.useContext<IBudget>(BudgetContext);
 
-	const [costs, setCosts] = React.useState<Array<ICost>>(defaultCosts);
+	const [state, dispatch] = React.useReducer(costsReducer, {costs: defaultCosts});
 	const [title, setTitle] = React.useState<string>('');
 	const [cost, setCost] = React.useState<number>(0);
 
+	const { costs } = state;
 
 	// total spend
 	const totalSpend: number = costs.reduce((sum, cost) => sum + cost.cost, 0);
@@ -29,26 +26,29 @@ const BudgetPage: React.FC<BudgetPageProps> = () => {
 
 	// handles to change costs
 	const handleDeleteCost = (id: string) => {
-		const newCosts = costs.filter(cost => cost.id !== id);
-		setCosts(newCosts);
+		dispatch({
+			type: 'REMOVE_COST',
+			payload: id
+		});
 	};
 
 	const handleChangeCost = (id: string) => {
-		const cost = costs.find(c => c.id === id) as ICost;
-		console.log(cost);
+		dispatch({
+			type: 'EDIT_COST',
+			payload: id
+		});
 	};
 
 	const handleAddCost = () => {
-		if(!title || cost === 0) return;
-		const costToAdd: ICost = {
-			id: uuid(),
-			title,
-			cost,
-			color: 'red'
-		};
 		setTitle('');
 		setCost(0);
-		setCosts(prevCosts => [costToAdd, ...prevCosts]);
+		dispatch({
+			type: 'ADD_COST',
+			payload: {
+				title,
+				cost
+			}
+		});
 	};
 	// handles to change costs
 

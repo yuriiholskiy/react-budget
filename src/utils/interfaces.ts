@@ -9,3 +9,4 @@ export interface IBudget {
 	budget: number;
 	setBudget: React.Dispatch<React.SetStateAction<number>>;
 };
+
