@@ -6,14 +6,21 @@ type CostsFormProps = {
 	cost: number;
 	setCost: React.Dispatch<React.SetStateAction<number>>;
 	handleAddCost(): void;
+	editCostId: string;
+	handleStartEditing: any
 };
 
-const CostsFormComponent: React.FC<CostsFormProps> = ({ title, setTitle, cost, setCost, handleAddCost }) => {
+const CostsFormComponent: React.FC<CostsFormProps> = (props) => {
+	const { title, setTitle, cost, setCost, handleAddCost, editCostId, handleStartEditing } = props;
+	const canEdit = !!editCostId;
 	const handleSubmit = (event: React.ChangeEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		handleAddCost();		
 	};
-
+	const handleEditCost = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		handleStartEditing({id: editCostId, newTitle: title, newCost: cost});
+	};
 	const disabledBtn = !title || cost === 0;
   return (
   	<form onSubmit={handleSubmit}>
@@ -35,7 +42,9 @@ const CostsFormComponent: React.FC<CostsFormProps> = ({ title, setTitle, cost, s
 	      			 onChange={(event: React.ChangeEvent<HTMLInputElement>)  => setCost(+event.target.value)}/>
 	      <label htmlFor="cost">Cost</label>
 	    </div>
-	    <button type="submit" className="btn mt-1" disabled={disabledBtn}>Add</button>
+	    {canEdit ? 
+	    	<button className="btn mt-1" onClick={handleEditCost}>Edit</button> : 
+	    	<button type="submit" className="btn mt-1" disabled={disabledBtn}>Add</button>}
     </form>
   );
 };

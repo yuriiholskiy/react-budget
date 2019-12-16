@@ -5,21 +5,27 @@ import CostsFormComponent from '../components/costs-form.component';
 import BudgetContext from '../providers/budget.provider';
 
 import { IBudget, ICost } from '../utils/interfaces';
-import { uuid } from '../utils/uuid';
 import defaultCosts from '../utils/costs';
+import { setToStorage, getFromStorage } from '../utils/local-storage';
 
 import { costsReducer } from '../reducers/costs/reducer';
-
-
+import { editPayload } from '../reducers/costs/types';
+const defaultState = {
+	costs: JSON.parse(getFromStorage('costs') || '[]') as Array<ICost>
+};
 const BudgetPage: React.FC = () => {
 	const { budget } = React.useContext<IBudget>(BudgetContext);
-
-	const [state, dispatch] = React.useReducer(costsReducer, {costs: defaultCosts});
+	const [state, dispatch] = React.useReducer(costsReducer, defaultState);
 	const [title, setTitle] = React.useState<string>('');
 	const [cost, setCost] = React.useState<number>(0);
 
+	const [editCostId, setEditCostId] = React.useState<string>('');
+
 	const { costs } = state;
 
+	React.useEffect(() => {
+		setToStorage('costs', JSON.stringify(costs))
+	}, [costs]);
 	// total spend
 	const totalSpend: number = costs.reduce((sum, cost) => sum + cost.cost, 0);
 	//totol spend
@@ -31,12 +37,27 @@ const BudgetPage: React.FC = () => {
 			payload: id
 		});
 	};
-
-	const handleChangeCost = (id: string) => {
+	const handleChangeCost = ({id, newTitle, newCost}: editPayload) => {
 		dispatch({
 			type: 'EDIT_COST',
-			payload: id
+			payload: {
+				id,
+				newTitle,
+				newCost
+			}
 		});
+	};
+	const handleStartEditing = ({id, newTitle, newCost}: editPayload) => {
+		setEditCostId(id);
+		setTitle(newTitle);
+		setCost(newCost);
+
+		handleChangeCost({id, newTitle, newCost});
+	};
+	const handleCancelEdit = (): void => {
+		setEditCostId('');
+		setTitle('');
+		setCost(0);
 	};
 
 	const handleAddCost = () => {
@@ -54,6 +75,7 @@ const BudgetPage: React.FC = () => {
 
 	// markup
 	const renderCosts = costs.map(({ id, title, cost, color }, index) => {
+		const canEdit = editCostId === id;
 		return (
 			<li className="collection-item df jcsb aic" key={id}>
 				<div className="app-budget-title">
@@ -62,8 +84,12 @@ const BudgetPage: React.FC = () => {
 				</div>
 
 				<div className="app-budget-icons">
-					<i className="material-icons cp px-1 cp" 
-						 onClick={() => handleChangeCost(id)}>create</i>
+					{
+						canEdit ? <i className="material-icons cp px-1 cp" 
+											 	 onClick={() => handleCancelEdit()}>cancel</i> :
+											<i className="material-icons cp px-1 cp" 
+								 				 onClick={() => handleStartEditing({id, newTitle: title, newCost: cost})}>create</i>
+					}
 					<i className="material-icons cp px-1 cp" 
 						 onClick={() => handleDeleteCost(id)}>delete</i>
 				</div>
@@ -77,7 +103,10 @@ const BudgetPage: React.FC = () => {
 													setTitle={setTitle} 
 													cost={cost} 
 													setCost={setCost} 
-													handleAddCost={handleAddCost} />
+													handleAddCost={handleAddCost}
+													editCostId={editCostId}
+													handleStartEditing={handleStartEditing}
+													/>
 
 	  	<p className="fz2">
 	  		Your full budget is: <strong>{budget}&#8372;</strong>
